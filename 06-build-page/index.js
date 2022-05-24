@@ -14,13 +14,13 @@ async function readFile(filePath) {
 async function createIndexPage() {
   let html = await readFile(path.join(__dirname, 'template.html'));
 
-  const header = await readFile(path.join(componentsDir, 'header.html'));
-  const articles = await readFile(path.join(componentsDir, 'articles.html'));
-  const footer = await readFile(path.join(componentsDir, 'footer.html'));
+  const sections = html.match(/{{.+}}/g);
+  for (let i = 0; i < sections.length; i++) {
+    const fileName = sections[i].substring(2, sections[i].length - 2) + '.html';
+    const replacement = await readFile(path.join(componentsDir, fileName));
 
-  html = html.replace('{{header}}', header);
-  html = html.replace('{{articles}}', articles);
-  html = html.replace('{{footer}}', footer);
+    html = html.replace(sections[i], replacement);
+  }
 
   await fs.promises.writeFile(path.join(projectDistDir, 'index.html'), html);
 }
